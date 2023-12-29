@@ -25,6 +25,19 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(::IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation)
 {
+    auto catA = new DrawableObj(0, "test", "test");
+    catA->setXPos(100);
+    catA->setYPos(100);
+    auto catB = new DrawableObj(0, "test", "test");
+    catB->setXPos(300);
+    catB->setYPos(250);
+    auto catC = new DrawableObj(0, "test", "test");
+    catC->setXPos(175);
+    catC->setYPos(180);
+    m_objects.push_back(catA);
+    m_objects.push_back(catB);
+    m_objects.push_back(catC);
+
     m_deviceResources->SetWindow(window, width, height, rotation);
 
     m_deviceResources->CreateDeviceResources();
@@ -39,6 +52,14 @@ void Game::Initialize(::IUnknown* window, int width, int height, DXGI_MODE_ROTAT
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
+
+    m_keyboard = std::make_unique<Keyboard>();
+    m_keyboard->SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
+
+    m_mouse = std::make_unique<Mouse>();
+    m_mouse->SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
+
+    
 }
 
 #pragma region Frame Update
@@ -61,6 +82,31 @@ void Game::Update(DX::StepTimer const& timer)
     float elapsedTime = float(timer.GetElapsedSeconds());
 
     // TODO: Add your game logic here.
+    auto kb = m_keyboard->GetState();
+    m_keys.Update(kb);
+
+    if (kb.Escape)
+    {
+        ExitGame();
+    }
+
+    if (kb.Up || kb.W)
+        m_screenPos.y -= 1.f;
+    if (kb.Down || kb.S)
+        m_screenPos.y += 1.f;
+    if (kb.Left || kb.A)
+        m_screenPos.x -= 1.f;
+    if (kb.Right || kb.D)
+        m_screenPos.x += 1.f;
+
+    auto mouse = m_mouse->GetState();
+    m_mouseButtons.Update(mouse);
+
+    if (mouse.leftButton) {
+        m_screenPos.x = mouse.x;
+        m_screenPos.y = mouse.y;
+    }
+
     elapsedTime;
 
     PIXEndEvent();
@@ -85,14 +131,18 @@ void Game::Render()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
     // TODO: Add your rendering code here.
-    ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap() };
+    ID3D12DescriptorHeap* heaps[] = { m_resourceDescriptors->Heap(), m_states->Heap() };
     commandList->SetDescriptorHeaps(static_cast<UINT>(std::size(heaps)), heaps);
 
     m_spriteBatch->Begin(commandList);
 
-    m_spriteBatch->Draw(m_resourceDescriptors->GetGpuHandle(Descriptors::Cat),
-        GetTextureSize(m_texture.Get()),
-        m_screenPos, nullptr, Colors::White, 0.f, m_origin);
+    m_spriteBatch->Draw(m_resourceDescriptors->GetGpuHandle(Descriptors::Background),
+        GetTextureSize(m_background.Get()),
+        m_fullscreenRect);
+
+    for (DrawableObj* obj : m_objects) {
+        obj->Render(commandList, m_resourceDescriptors, m_spriteBatch);
+    }
 
     m_spriteBatch->End();
 
@@ -137,6 +187,8 @@ void Game::Clear()
 void Game::OnActivated()
 {
     // TODO: Game is becoming active window.
+    m_keys.Reset();
+    m_mouseButtons.Reset();
 }
 
 void Game::OnDeactivated()
@@ -154,6 +206,8 @@ void Game::OnResuming()
     m_timer.ResetElapsedTime();
 
     // TODO: Game is being power-resumed.
+    m_keys.Reset();
+    m_mouseButtons.Reset();
 }
 
 void Game::OnDisplayChange()
@@ -213,23 +267,25 @@ void Game::CreateDeviceDependentResources()
 
     resourceUpload.Begin();
 
-    DX::ThrowIfFailed(
-        CreateWICTextureFromFile(device, resourceUpload, L"cat.png",
-            m_texture.ReleaseAndGetAddressOf()));
-
-    CreateShaderResourceView(device, m_texture.Get(),
-        m_resourceDescriptors->GetCpuHandle(Descriptors::Cat));
-
     RenderTargetState rtState(m_deviceResources->GetBackBufferFormat(),
         m_deviceResources->GetDepthBufferFormat());
 
-    SpriteBatchPipelineStateDescription pd(rtState, &CommonStates::NonPremultiplied);
+    SpriteBatchPipelineStateDescription pd(rtState);
+
+    for (DrawableObj* obj : m_objects) {
+        obj->CreateDeviceDependentResources(resourceUpload, m_deviceResources, m_resourceDescriptors, device, L"cat.png");
+    }
+  
     m_spriteBatch = std::make_unique<SpriteBatch>(device, resourceUpload, pd);
 
-    XMUINT2 catSize = GetTextureSize(m_texture.Get());
+    DX::ThrowIfFailed(
+        CreateWICTextureFromFile(device, resourceUpload, L"sunset.jpg",
+            m_background.ReleaseAndGetAddressOf()));
 
-    m_origin.x = float(catSize.x / 2);
-    m_origin.y = float(catSize.y / 2);
+    CreateShaderResourceView(device, m_background.Get(),
+        m_resourceDescriptors->GetCpuHandle(Descriptors::Background));
+
+    m_states = std::make_unique<CommonStates>(device);
 
     auto uploadResourcesFinished = resourceUpload.End(
         m_deviceResources->GetCommandQueue());
@@ -247,6 +303,8 @@ void Game::CreateWindowSizeDependentResources()
     auto size = m_deviceResources->GetOutputSize();
     m_screenPos.x = float(size.right) / 2.f;
     m_screenPos.y = float(size.bottom) / 2.f;
+
+    m_fullscreenRect = m_deviceResources->GetOutputSize();
 }
 
 void Game::OnDeviceLost()
@@ -256,6 +314,10 @@ void Game::OnDeviceLost()
     m_resourceDescriptors.reset();
 
     m_spriteBatch.reset();
+
+    m_states.reset();
+
+    m_background.Reset();
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
     m_graphicsMemory.reset();

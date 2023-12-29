@@ -8,6 +8,12 @@
       <UniqueIdentifier>fad7dfff-ab10-46aa-b7e9-686113b7084b</UniqueIdentifier>
       <Extensions>bmp;dds;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{57ee0c71-32d9-42b0-aa25-d53b9597eda7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Subtypes">
+      <UniqueIdentifier>{3ed4b571-9131-4ba8-b137-483bffd9b83f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -15,6 +21,15 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\BaseObj.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\PhysicalObj.cpp">
+      <Filter>Core\Subtypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\DrawableObj.cpp">
+      <Filter>Core\Subtypes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -28,6 +43,15 @@
     </ClInclude>
     <ClInclude Include="d3dx12.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\BaseObj.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PhysicalObj.h">
+      <Filter>Core\Subtypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\DrawableObj.h">
+      <Filter>Core\Subtypes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +71,9 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="..\..\..\..\..\Downloads\cat.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Downloads\sunset.jpg">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>

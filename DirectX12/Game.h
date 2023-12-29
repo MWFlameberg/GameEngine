@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/DrawableObj.h>
 #include "DeviceResources.h"
 #include "StepTimer.h"
 
@@ -70,10 +71,25 @@ private:
     enum Descriptors
     {
         Cat,
+        Background,
         Count
     };
 
     std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
     DirectX::SimpleMath::Vector2 m_screenPos;
     DirectX::SimpleMath::Vector2 m_origin;
+
+    RECT m_fullscreenRect;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_background;
+
+    RECT m_tileRect;
+    std::unique_ptr<DirectX::CommonStates> m_states;
+
+    std::unique_ptr<DirectX::Keyboard> m_keyboard;
+    std::unique_ptr<DirectX::Mouse> m_mouse;
+
+    DirectX::Keyboard::KeyboardStateTracker m_keys;
+    DirectX::Mouse::ButtonStateTracker m_mouseButtons;
+
+    std::list<DrawableObj*> m_objects;
 };

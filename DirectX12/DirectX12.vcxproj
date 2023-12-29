@@ -338,13 +338,18 @@
     </FXCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Core\BaseObj.h" />
     <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="Core\DrawableObj.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Core\PhysicalObj.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="DeviceResources.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\BaseObj.cpp" />
+    <ClCompile Include="Core\DrawableObj.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -358,6 +363,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Core\PhysicalObj.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -368,6 +374,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\Downloads\cat.png" />
+    <Image Include="..\..\..\..\..\Downloads\sunset.jpg" />
     <Image Include="Assets\Logo.scale-200.png" />
     <Image Include="Assets\SmallLogo.scale-200.png" />
     <Image Include="Assets\SplashScreen.scale-200.png" />
