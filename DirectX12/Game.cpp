@@ -25,18 +25,33 @@ Game::Game() noexcept(false)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(::IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation)
 {
-    auto catA = new DrawableObj(0, "test", "test");
-    catA->setXPos(100);
-    catA->setYPos(100);
-    auto catB = new DrawableObj(0, "test", "test");
-    catB->setXPos(300);
-    catB->setYPos(250);
-    auto catC = new DrawableObj(0, "test", "test");
-    catC->setXPos(175);
-    catC->setYPos(180);
-    m_objects.push_back(catA);
-    m_objects.push_back(catB);
-    m_objects.push_back(catC);
+
+    PhysicalObj* testA = new PhysicalObj(0, "testA", "testA");
+    PhysicalObj* testB = new PhysicalObj(1, "testB", "testB");
+    PhysicalObj* testC = new PhysicalObj(2, "testC", "testC");
+
+    ControllableObj* testD = new ControllableObj(3, "testD", "testD");
+
+    DrawableDecorator* testA1 = new DrawableDecorator(testA);
+    DrawableDecorator* testB1 = new DrawableDecorator(testB);
+    DrawableDecorator* testC1 = new DrawableDecorator(testC);
+    DrawableDecorator* testD1 = new DrawableDecorator(testD);
+
+    testA->setPos(100, 100);
+    testA1->setTextureValues("Assets/Logo.scale-200.png", 0);
+    testB->setPos(300, 250);
+    testB1->setTextureValues("Assets/cat.png", 1);
+    testC->setPos(175, 180);
+    testC1->setTextureValues("Assets/cat.png", 1);
+    testD->setPos(400, 400);
+    testD1->setTextureValues("Assets/cat.png", 1);
+
+    m_objects.push_back(testA1);
+    m_objects.push_back(testB1);
+    m_objects.push_back(testC1);
+    m_objects.push_back(testD1);
+
+    m_players.push_back(testD);
 
     m_deviceResources->SetWindow(window, width, height, rotation);
 
@@ -90,14 +105,16 @@ void Game::Update(DX::StepTimer const& timer)
         ExitGame();
     }
 
-    if (kb.Up || kb.W)
-        m_screenPos.y -= 1.f;
-    if (kb.Down || kb.S)
-        m_screenPos.y += 1.f;
-    if (kb.Left || kb.A)
-        m_screenPos.x -= 1.f;
-    if (kb.Right || kb.D)
-        m_screenPos.x += 1.f;
+    for (ControllableObj* obj : m_players) {
+        if (kb.Up || kb.W)
+            obj->addYPos(-1.f);
+        if (kb.Down || kb.S)
+            obj->addYPos(1.f);
+        if (kb.Left || kb.A)
+            obj->addXPos(-1.f);
+        if (kb.Right || kb.D)
+            obj->addXPos(1.f);
+    }
 
     auto mouse = m_mouse->GetState();
     m_mouseButtons.Update(mouse);
@@ -136,12 +153,9 @@ void Game::Render()
 
     m_spriteBatch->Begin(commandList);
 
-    m_spriteBatch->Draw(m_resourceDescriptors->GetGpuHandle(Descriptors::Background),
-        GetTextureSize(m_background.Get()),
-        m_fullscreenRect);
 
-    for (DrawableObj* obj : m_objects) {
-        obj->Render(commandList, m_resourceDescriptors, m_spriteBatch);
+    for (DrawableDecorator* obj : m_objects) {
+        obj->Render(m_resourceDescriptors, m_spriteBatch);
     }
 
     m_spriteBatch->End();
@@ -272,18 +286,11 @@ void Game::CreateDeviceDependentResources()
 
     SpriteBatchPipelineStateDescription pd(rtState);
 
-    for (DrawableObj* obj : m_objects) {
-        obj->CreateDeviceDependentResources(resourceUpload, m_deviceResources, m_resourceDescriptors, device, L"cat.png");
+    for (DrawableDecorator* obj : m_objects) {
+        obj->CreateDeviceDependentResources(resourceUpload, m_resourceDescriptors, device);
     }
   
     m_spriteBatch = std::make_unique<SpriteBatch>(device, resourceUpload, pd);
-
-    DX::ThrowIfFailed(
-        CreateWICTextureFromFile(device, resourceUpload, L"sunset.jpg",
-            m_background.ReleaseAndGetAddressOf()));
-
-    CreateShaderResourceView(device, m_background.Get(),
-        m_resourceDescriptors->GetCpuHandle(Descriptors::Background));
 
     m_states = std::make_unique<CommonStates>(device);
 

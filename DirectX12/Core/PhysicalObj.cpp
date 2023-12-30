@@ -41,6 +41,11 @@ float PhysicalObj::getYPos()
 {
 	return yPos;
 }
+void PhysicalObj::setPos(float xPosIn, float yPosIn)
+{
+	setXPos(xPosIn);
+	setYPos(yPosIn);
+}
 void PhysicalObj::setXSize(float xSizeIn)
 {
 	xSize = xSizeIn;
@@ -56,4 +61,10 @@ void PhysicalObj::setYSize(float ySizeIn)
 float PhysicalObj::getYSize()
 {
 	return ySize;
+}
+
+void PhysicalObj::setSize(float xSizeIn, float ySizeIn)
+{
+	setXSize(xSizeIn);
+	setYSize(ySizeIn);
 }

@@ -3,11 +3,10 @@
 //
 
 #pragma once
-
-#include <Core/DrawableObj.h>
+#include <Core/ControllableObj.h>
+#include <Core/Decorators/DrawableDecorator.h>
 #include "DeviceResources.h"
 #include "StepTimer.h"
-
 
 // A basic game implementation that creates a D3D12 device and
 // provides a game loop.
@@ -91,5 +90,6 @@ private:
     DirectX::Keyboard::KeyboardStateTracker m_keys;
     DirectX::Mouse::ButtonStateTracker m_mouseButtons;
 
-    std::list<DrawableObj*> m_objects;
+    std::list<DrawableDecorator*> m_objects;
+    std::list<ControllableObj*> m_players;
 };

@@ -14,6 +14,9 @@
     <Filter Include="Core\Subtypes">
       <UniqueIdentifier>{3ed4b571-9131-4ba8-b137-483bffd9b83f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Decorators">
+      <UniqueIdentifier>{858c6f9e-89bd-49f1-bfd6-2d550244e7cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -28,8 +31,11 @@
     <ClCompile Include="Core\PhysicalObj.cpp">
       <Filter>Core\Subtypes</Filter>
     </ClCompile>
-    <ClCompile Include="Core\DrawableObj.cpp">
+    <ClCompile Include="Core\ControllableObj.cpp">
       <Filter>Core\Subtypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Decorators\DrawableDecorator.cpp">
+      <Filter>Core\Decorators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -50,8 +56,11 @@
     <ClInclude Include="Core\PhysicalObj.h">
       <Filter>Core\Subtypes</Filter>
     </ClInclude>
-    <ClInclude Include="Core\DrawableObj.h">
+    <ClInclude Include="Core\ControllableObj.h">
       <Filter>Core\Subtypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Decorators\DrawableDecorator.h">
+      <Filter>Core\Decorators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -70,10 +79,13 @@
     <Image Include="Assets\WideLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="..\..\..\..\..\Downloads\cat.png">
+    <Image Include="Assets\cat.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="..\..\..\..\..\Downloads\sunset.jpg">
+    <Image Include="Assets\sunset.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\cat2.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
